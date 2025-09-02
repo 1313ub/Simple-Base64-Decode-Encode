@@ -1,181 +1,142 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <title>Base64 Encode & Decode</title>
-    <link rel="icon" href="icon.png" type="image/png">
-    <script type="text/javascript">
-        // Base64 인코딩
-        function updateEncode() {
-            var inputText = document.getElementById("encodeInput").value.trim();
-            var times = 1;
-            var encoded = inputText;
-
-            try {
-                for (var i = 0; i < times; i++) {
-                    encoded = btoa(encoded);
-                }
-                showCopyableResult("encodeResult", encoded);
-            } catch (e) {
-                document.getElementById("encodeResult").textContent =
-                    "오류 발생: " + e.message;
-            }
-        }
-
-        // Base64 디코딩
-        function updateDecode() {
-            var wantCode = document.getElementById("decodeInput").value.trim();
-            var decoded;
-
-            try {
-                decoded = atob(wantCode);
-                if (decoded.substr(0, 5) === "https") {
-                    showCopyableResult("decodeResult", decoded, true);
-                } else {
-                    showCopyableResult("decodeResult", decoded);
-                }
-            } catch (e) {
-                document.getElementById("decodeResult").textContent =
-                    "오류 발생: " + e.message;
-            }
-        }
-
-        // 결과 출력 및 클릭 시 복사
-        function showCopyableResult(elementId, text, isLink=false) {
-            var result = document.getElementById(elementId);
-            result.innerHTML = ""; // 초기화
-
-            if(isLink) {
-                var a = document.createElement("a");
-                a.href = text;
-                a.target = "_blank";
-                a.textContent = text;
-                a.style.cursor = "pointer";
-                a.onclick = function(e) {
-                    e.preventDefault();
-                    navigator.clipboard.writeText(text);
-                };
-                result.appendChild(a);
-            } else {
-                var span = document.createElement("span");
-                span.textContent = text;
-                span.style.cursor = "pointer";
-                span.onclick = function() {
-                    navigator.clipboard.writeText(text);
-                };
-                result.appendChild(span);
-            }
-        }
-        
-        window.onload = function() {
-            // 입력란 클릭 시 기존 텍스트 삭제 + 실시간 업데이트
-            ["encodeInput", "decodeInput"].forEach(function(id) {
-                var input = document.getElementById(id);
-                input.addEventListener("focus", function() {
-                    input.value = "";
-                });
-                if(id === "encodeInput") {
-                    input.addEventListener("input", updateEncode);
-                } else {
-                    input.addEventListener("input", updateDecode);
-                }
-            });
-
-            // 인코딩 붙여넣기 버튼
-            document.getElementById("pasteEncodeBtn").addEventListener("click", async function() {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    document.getElementById("encodeInput").value = text;
-                    updateEncode();
-                } catch (err) {
-                    console.error("클립보드 읽기 실패:", err);
-                }
-            });
-
-            // 디코딩 붙여넣기 버튼
-            document.getElementById("pasteDecodeBtn").addEventListener("click", async function() {
-                try {
-                    const text = await navigator.clipboard.readText();
-                    document.getElementById("decodeInput").value = text;
-                    updateDecode();
-                } catch (err) {
-                    console.error("클립보드 읽기 실패:", err);
-                }
-            });
-        };
-    </script>
-    <style>
-        body { font-family: sans-serif; }
-        .container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 30px;
-            margin-top: 50px;
-        }
-        .panel {
-            width: 45%;
-            padding: 0px;
-            border: 1px solid #ccc;
-            border-radius: 12px;
-            box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
-            text-align: center;
-            background-color: rgba(255, 255, 255, 0.6);
-        }
-        textarea {
-            width: 100%;
-            height: 200px;
-            font-family: monospace;
-            font-size: 14px;
-            resize: none;
-            overflow-y: auto;
-        }
-        .result {
-            margin-top: 20px;
-            font-size: 16px;
-            word-wrap: break-word;
-            white-space: pre-wrap;
-        }
-        .hint { font-size: 12px; color: gray; }
-        a, span { color: blue; text-decoration: underline; }
-        
-        @media (max-width: 600px) {
-            .panel {
-                width: 90%;       /* 화면 폭에 맞춤 */
-                padding: 15px;    /* 패널 안쪽 여백 줄임 */
-            }
-            textarea {
-                height: 80px;     /* 텍스트 영역 높이 줄임 */
-                font-size: 13px;  /* 폰트 크기 줄임 */
-            }
-            button {
-                font-size: 14px;  /* 버튼 글자 크기 줄임 */
-            }
-        }
-    </style>
+<meta charset="UTF-8">
+<title>Base64 Encode & Decode</title>
+<link rel="icon" href="icon.png" type="image/png">
+<style>
+    body { font-family: sans-serif; margin:0; padding:0; }
+    .container { display: flex; flex-direction: column; align-items: center; gap: 30px; margin-top: 50px; }
+    .panel { width: 45%; padding: 20px; border:1px solid #ccc; border-radius:12px; box-shadow:2px 2px 6px rgba(0,0,0,0.1); text-align:center; background-color: rgba(255,255,255,0.6); }
+    textarea { width: 100%; height: 200px; font-family: monospace; font-size:14px; resize: none; overflow-y:auto; }
+    .result { margin-top: 20px; font-size:16px; word-wrap: break-word; white-space: pre-wrap; }
+    .hint { font-size:12px; color: gray; }
+    a, span { color: blue; text-decoration: underline; cursor:pointer; }
+    body.pc .panel { width:45%; }
+    body.mobile .panel { width:90%; }
+    body.mobile button { font-size:30px; }
+    body.mobile textarea { height: 180px; font-size:30px; }
+    body.mobile h2 { font-size: 46px; }
+    body.mobile h3 { font-size: 40px; }
+    body.mobile .result { font-size: 40px; }
+    body.mobile .hint { font-size: 20px; }
+    #toggleModeBtn { position: fixed; bottom:10px; right:10px; z-index:999; padding:8px 12px; border-radius:8px; border:none; background-color:#007bff; color:white; cursor:pointer; }
+</style>
 </head>
 <body>
-    <div id="bgLayer" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; background-position:center center; background-repeat:no-repeat; background-size:cover;"></div>
-    <h2 style="text-align:center;">Base64 Encode & Decode</h2>
-    <div class="container">
-    
-        <!-- 디코딩 패널 -->
-        <div class="panel">
-            <h3>Decode</h3>
-            <button id="pasteDecodeBtn">붙여넣기</button>
-            <textarea id="decodeInput" placeholder="여기에 Base64 문자열 입력"></textarea><br>
-            <div class="hint">클릭으로 복사</div>
-            <div id="decodeResult" class="result"></div>
-        </div>
-        
-        <!-- 인코딩 패널 -->
-        <div class="panel">
-            <h3>Encode</h3>
-            <button id="pasteEncodeBtn">붙여넣기</button>
-            <textarea id="encodeInput" placeholder="여기에 문자열 입력"></textarea><br>
-            <div class="hint">클릭으로 복사</div>
-            <div id="encodeResult" class="result"></div>
-        </div>
+<h2 style="text-align:center;">Base64 Encode & Decode</h2>
+<div class="container">
+    <!-- 디코딩 패널 -->
+    <div class="panel">
+        <h3>Decode</h3>
+        <button id="pasteDecodeBtn">붙여넣기</button>
+        <textarea id="decodeInput" placeholder="여기에 Base64 문자열 입력"></textarea>
+        <div class="hint">결과 클릭 시 복사</div>
+        <div id="decodeResult" class="result"></div>
     </div>
+
+    <!-- 인코딩 패널 -->
+    <div class="panel">
+        <h3>Encode</h3>
+        <button id="pasteEncodeBtn">붙여넣기</button>
+        <textarea id="encodeInput" placeholder="여기에 문자열 입력"></textarea>
+        <div class="hint">결과 클릭 시 복사</div>
+        <div id="encodeResult" class="result"></div>
+    </div>
+</div>
+
+<!-- 모바일/PC 전환 버튼 -->
+<button id="toggleModeBtn">모바일/PC 전환</button>
+
+<script>
+function setUIMode(mode) {
+    if(mode==="mobile") {
+        document.body.classList.add("mobile");
+        document.body.classList.remove("pc");
+    } else {
+        document.body.classList.add("pc");
+        document.body.classList.remove("mobile");
+    }
+}
+
+function showCopyableResult(elementId, text, isLink=false) {
+    var result = document.getElementById(elementId);
+    result.innerHTML="";
+    if(isLink){
+        var a=document.createElement("a");
+        a.href=text;
+        a.target="_blank";
+        a.textContent=text;
+        a.onclick=function(e){ e.preventDefault(); navigator.clipboard.writeText(text); };
+        result.appendChild(a);
+    } else {
+        var span=document.createElement("span");
+        span.textContent=text;
+        span.onclick=function(){ navigator.clipboard.writeText(text); };
+        result.appendChild(span);
+    }
+}
+
+function updateEncode(){
+    var inputText=document.getElementById("encodeInput").value.trim();
+    try {
+        var encoded=btoa(inputText);
+        showCopyableResult("encodeResult", encoded);
+    } catch(e){
+        document.getElementById("encodeResult").textContent="오류 발생: "+e.message;
+    }
+}
+
+function updateDecode(){
+    var inputText=document.getElementById("decodeInput").value.trim();
+    try {
+        var decoded=atob(inputText);
+        if(decoded.substr(0,5)==="https"){
+            showCopyableResult("decodeResult", decoded, true);
+        } else {
+            showCopyableResult("decodeResult", decoded);
+        }
+    } catch(e){
+        document.getElementById("decodeResult").textContent="오류 발생: "+e.message;
+    }
+}
+
+window.addEventListener("load", function(){
+    // 이전 모드 불러오기
+    const mode=localStorage.getItem("uiMode")||"pc";
+    setUIMode(mode);
+
+    // 입력란 클릭 시 초기화 + 실시간 업데이트
+    ["encodeInput","decodeInput"].forEach(function(id){
+        var input=document.getElementById(id);
+        input.addEventListener("focus", function(){ input.value=""; });
+        input.addEventListener("input", id==="encodeInput"?updateEncode:updateDecode);
+    });
+
+    // 붙여넣기 버튼
+    document.getElementById("pasteEncodeBtn").addEventListener("click", async function(){
+        try {
+            const text=await navigator.clipboard.readText();
+            document.getElementById("encodeInput").value=text;
+            updateEncode();
+        } catch(e){ console.error(e); }
+    });
+    document.getElementById("pasteDecodeBtn").addEventListener("click", async function(){
+        try {
+            const text=await navigator.clipboard.readText();
+            document.getElementById("decodeInput").value=text;
+            updateDecode();
+        } catch(e){ console.error(e); }
+    });
+
+    // 모바일/PC 토글 버튼
+    document.getElementById("toggleModeBtn").addEventListener("click", function(){
+        const current=document.body.classList.contains("mobile")?"mobile":"pc";
+        const next=current==="mobile"?"pc":"mobile";
+        setUIMode(next);
+        localStorage.setItem("uiMode", next);
+    });
+});
+</script>
 </body>
 </html>
