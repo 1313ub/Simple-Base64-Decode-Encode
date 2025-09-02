@@ -120,7 +120,7 @@
             border-radius: 12px;
             box-shadow: 2px 2px 6px rgba(0,0,0,0.1);
             text-align: center;
-            background-color: rgba(255, 255, 255, 0.6); /* 반투명 흰색 */
+            background-color: rgba(255, 255, 255, 0.6);
         }
         textarea {
             width: 100%;
@@ -138,6 +138,20 @@
         }
         .hint { font-size: 12px; color: gray; }
         a, span { color: blue; text-decoration: underline; }
+        
+        @media (max-width: 600px) {
+            .panel {
+                width: 90%;       /* 화면 폭에 맞춤 */
+                padding: 15px;    /* 패널 안쪽 여백 줄임 */
+            }
+            textarea {
+                height: 80px;     /* 텍스트 영역 높이 줄임 */
+                font-size: 13px;  /* 폰트 크기 줄임 */
+            }
+            button {
+                font-size: 14px;  /* 버튼 글자 크기 줄임 */
+            }
+        }
     </style>
 </head>
 <body>
