@@ -80,7 +80,7 @@ function showCopyableResult(elementId, text, isLink=false) {
 function updateEncode(){
     var inputText=document.getElementById("encodeInput").value.trim();
     try {
-        var encoded=btoa(inputText);
+        var encoded=btoa(unescape(encodeURIComponent(inputText)));
         showCopyableResult("encodeResult", encoded);
     } catch(e){
         document.getElementById("encodeResult").textContent="오류";
@@ -90,7 +90,7 @@ function updateEncode(){
 function updateDecode(){
     var inputText=document.getElementById("decodeInput").value.trim();
     try {
-        var decoded=atob(inputText);
+        var decoded=decodeURIComponent(escape(atob(inputText)));
         if(decoded.substr(0,5)==="https"){
             showCopyableResult("decodeResult", decoded, true);
         } else {
