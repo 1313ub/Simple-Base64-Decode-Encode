@@ -108,7 +108,9 @@
         body { font-family: sans-serif; }
         .container {
             display: flex;
-            justify-content: space-around;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
             margin-top: 50px;
         }
         .panel {
@@ -142,15 +144,7 @@
     <div id="bgLayer" style="position:fixed; top:0; left:0; width:100%; height:100%; z-index:-1; background-position:center center; background-repeat:no-repeat; background-size:cover;"></div>
     <h2 style="text-align:center;">Base64 Encode & Decode</h2>
     <div class="container">
-        <!-- 인코딩 패널 -->
-        <div class="panel">
-            <h3>Encode</h3>
-            <button id="pasteEncodeBtn">붙여넣기</button>
-            <textarea id="encodeInput" placeholder="여기에 문자열 입력"></textarea><br>
-            <div class="hint">클릭으로 복사</div>
-            <div id="encodeResult" class="result"></div>
-        </div>
-
+    
         <!-- 디코딩 패널 -->
         <div class="panel">
             <h3>Decode</h3>
@@ -158,6 +152,15 @@
             <textarea id="decodeInput" placeholder="여기에 Base64 문자열 입력"></textarea><br>
             <div class="hint">클릭으로 복사</div>
             <div id="decodeResult" class="result"></div>
+        </div>
+        
+        <!-- 인코딩 패널 -->
+        <div class="panel">
+            <h3>Encode</h3>
+            <button id="pasteEncodeBtn">붙여넣기</button>
+            <textarea id="encodeInput" placeholder="여기에 문자열 입력"></textarea><br>
+            <div class="hint">클릭으로 복사</div>
+            <div id="encodeResult" class="result"></div>
         </div>
     </div>
 </body>
