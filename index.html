@@ -14,8 +14,8 @@
     a, span { color: blue; text-decoration: underline; cursor:pointer; }
     body.pc .panel { width:45%; }
     body.mobile .panel { width:90%; }
-    body.mobile button { font-size:46px; }
-    body.mobile textarea { height: 180px; font-size:46px; }
+    body.mobile button { font-size:46px; margin-bottom: 10px; }
+    body.mobile textarea { height: 320px; font-size:46px; }
     body.mobile h2 { font-size: 72px; }
     body.mobile h3 { font-size: 64px; }
     body.mobile .result { font-size: 64px; }
@@ -83,7 +83,7 @@ function updateEncode(){
         var encoded=btoa(inputText);
         showCopyableResult("encodeResult", encoded);
     } catch(e){
-        document.getElementById("encodeResult").textContent="오류 발생: "+e.message;
+        document.getElementById("encodeResult").textContent="오류";
     }
 }
 
@@ -97,7 +97,7 @@ function updateDecode(){
             showCopyableResult("decodeResult", decoded);
         }
     } catch(e){
-        document.getElementById("decodeResult").textContent="오류 발생: "+e.message;
+        document.getElementById("decodeResult").textContent="오류";
     }
 }
 
