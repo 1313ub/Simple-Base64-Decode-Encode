@@ -7,12 +7,15 @@
 <style>
     body { font-family: sans-serif; margin:0; padding:0; }
     .container { display: flex; flex-direction: column; align-items: center; gap: 30px; margin-top: 50px; }
-    .panel { width: 45%; padding: 20px; border:1px solid #ccc; border-radius:12px; box-shadow:2px 2px 6px rgba(0,0,0,0.1); text-align:center; background-color: rgba(255,255,255,0.6); }
+    .panel { width: 50%; padding: 20px; border:1px solid #ccc; border-radius:12px; box-shadow:2px 2px 6px rgba(0,0,0,0.1); text-align:center; background-color: rgba(255,255,255,0.6); }
     textarea { width: 100%; height: 200px; font-family: monospace; font-size:14px; resize: none; overflow-y:auto; }
-    .result { margin-top: 20px; font-size:16px; word-wrap: break-word; white-space: pre-wrap; }
-    .hint { font-size:12px; color: gray; }
+    .result { margin-top: 10px; font-size:16px; word-wrap: break-word; white-space: pre-wrap; }
+    .hint { margin-top: 10px; font-size:12px; color: gray; }
     a, span { color: blue; text-decoration: underline; cursor:pointer; }
-    body.pc .panel { width:45%; }
+    .toast { position: fixed;bottom: 60px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.75);color: #fff;padding: 10px 20px;border-radius: 8px;font-size: 16px;opacity: 0;transition: opacity 0.5s ease-in-out;z-index: 1000; }
+    @media (max-width: 760px) {
+        .panel { width: 90%; }
+    }
     body.mobile .panel { width:90%; }
     body.mobile button { font-size:46px; margin-bottom: 10px; }
     body.mobile textarea { height: 320px; font-size:46px; }
@@ -20,33 +23,36 @@
     body.mobile h3 { font-size: 64px; }
     body.mobile .result { font-size: 64px; }
     body.mobile .hint { font-size: 30px; }
+    body.mobile .toast { font-size: 42px; padding: 20px 40px; bottom: 100px; }
     #toggleModeBtn { position: fixed; bottom:10px; right:10px; z-index:999; padding:8px 12px; border-radius:8px; border:none; background-color:#007bff; color:white; cursor:pointer; }
 </style>
 </head>
 <body>
-<h2 style="text-align:center;">Base64 Decode & Encode</h2>
 <div class="container">
     <!-- 디코딩 패널 -->
     <div class="panel">
         <h3>Decode</h3>
         <button id="pasteDecodeBtn">붙여넣기</button>
-        <textarea id="decodeInput" placeholder="여기에 Base64 문자열 입력"></textarea>
-        <div class="hint">결과 클릭 시 복사</div>
+        <textarea id="decodeInput" placeholder="여기에 Base64 문자열 입력" autocomplete="off"></textarea>
         <div id="decodeResult" class="result"></div>
+        <div class="hint">클릭으로 복사 | 사이트로 이동</div>
     </div>
 
     <!-- 인코딩 패널 -->
     <div class="panel">
         <h3>Encode</h3>
         <button id="pasteEncodeBtn">붙여넣기</button>
-        <textarea id="encodeInput" placeholder="여기에 문자열 입력"></textarea>
-        <div class="hint">결과 클릭 시 복사</div>
+        <textarea id="encodeInput" placeholder="여기에 문자열 입력" autocomplete="off"></textarea>
         <div id="encodeResult" class="result"></div>
+        <div class="hint">클릭으로 복사 | 사이트로 이동</div>
     </div>
 </div>
+<h2 style="text-align:center;">Base64 Decode & Encode</h2>
 
 <!-- 모바일/PC 전환 버튼 -->
 <button id="toggleModeBtn">모바일/PC 전환</button>
+
+<div id="toast" class="toast"></div>
 
 <script>
 function setUIMode(mode) {
@@ -62,19 +68,23 @@ function setUIMode(mode) {
 function showCopyableResult(elementId, text, isLink=false) {
     var result = document.getElementById(elementId);
     result.innerHTML="";
-    if(isLink){
-        var a=document.createElement("a");
-        a.href=text;
-        a.target="_blank";
-        a.textContent=text;
-        a.onclick=function(e){ e.preventDefault(); navigator.clipboard.writeText(text); };
-        result.appendChild(a);
-    } else {
-        var span=document.createElement("span");
-        span.textContent=text;
-        span.onclick=function(){ navigator.clipboard.writeText(text); };
-        result.appendChild(span);
-    }
+
+    var span = document.createElement("span");
+    span.textContent = text;
+
+    span.onclick = function() {
+        if(isLink){
+            // 링크면 새 창으로 이동
+            window.open(text, "_blank");
+        } else {
+            // 링크 아니면 복사
+            navigator.clipboard.writeText(text).then(()=>{
+                showToast("복사되었습니다");
+            });
+        }
+    };
+
+    result.appendChild(span);
 }
 
 function updateEncode(){
@@ -101,6 +111,28 @@ function updateDecode(){
     }
 }
 
+let toastTimeout; // 전역 변수
+
+function showToast(message) {
+    // 모바일이면 그냥 반환
+    if(document.body.classList.contains("mobile")) return;
+
+    const toast = document.getElementById("toast");
+    toast.textContent = message;
+    toast.style.opacity = "1";
+    toast.style.visibility = "visible";
+
+    if(toastTimeout) clearTimeout(toastTimeout);
+
+    toastTimeout = setTimeout(() => {
+        toast.style.opacity = "0";
+        toastTimeout = setTimeout(() => {
+            toast.style.visibility = "hidden";
+            toastTimeout = null;
+        }, 500); // fade-out 시간
+    }, 1500); // 표시 시간
+}
+
 window.addEventListener("load", function(){
     // 이전 모드 불러오기
     const mode=localStorage.getItem("uiMode")||"pc";
@@ -119,6 +151,8 @@ window.addEventListener("load", function(){
             const text=await navigator.clipboard.readText();
             document.getElementById("encodeInput").value=text;
             updateEncode();
+            
+            if(!document.body.classList.contains("mobile")) {showToast("붙여넣었습니다");}
         } catch(e){ console.error(e); }
     });
     document.getElementById("pasteDecodeBtn").addEventListener("click", async function(){
@@ -126,6 +160,8 @@ window.addEventListener("load", function(){
             const text=await navigator.clipboard.readText();
             document.getElementById("decodeInput").value=text;
             updateDecode();
+            
+            if(!document.body.classList.contains("mobile")) {showToast("붙여넣었습니다");}
         } catch(e){ console.error(e); }
     });
 
